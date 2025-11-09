@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RapidClaim - Car Crash Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .metadata {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #dee2e6;
+        }
+        .progress-container {
+            margin: 20px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .metadata p {
+            margin: 5px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .metadata p:last-child {
+            border-bottom: none;
+        }
+        .status-message {
+            text-align: center;
+            color: #666;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Car Crash Analysis Training</h1>
+        
+        <div class="image-container">
+            <img id="randomImage" src="" alt="Random car crash image">
+        </div>
+        
+        <div class="metadata" id="imageMetadata">
+            <p class="status-message">Loading metadata...</p>
+        </div>
+        
+        <div style="text-align: center;">
+            <button id="startTraining">Start Training</button>
+        </div>
+        
+        <div class="progress-container">
+            <h3>Training Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            <p id="progressText" class="status-message">Not started</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        
+        async function loadRandomImage() {
+            try {
+                const response = await fetch(`${API_URL}/random-image`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                
+                if (data.image) {
+                    document.getElementById('randomImage').src = `data:image/jpeg;base64,${data.image}`;
+                    
+                    // Display metadata
+                    const metadataHtml = Object.entries(data.metadata)
+                        .map(([key, value]) => `<p><strong>${key}:</strong> ${value}</p>`)
+                        .join('');
+                    document.getElementById('imageMetadata').innerHTML = metadataHtml;
+                } else {
+                    document.getElementById('imageMetadata').innerHTML = '<p class="status-message">No image data available</p>';
+                }
+            } catch (error) {
+                console.error('Error loading image:', error);
+                document.getElementById('imageMetadata').innerHTML = '<p class="status-message">Error loading image data</p>';
+            }
+        }
+
+        async function startTraining() {
+            const button = document.getElementById('startTraining');
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_URL}/start-training`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                checkProgress();
+            } catch (error) {
+                console.error('Error starting training:', error);
+                button.disabled = false;
+                document.getElementById('progressText').textContent = 'Error starting training';
+            }
+        }
+
+        async function checkProgress() {
+            try {
+                const response = await fetch(`${API_URL}/training-progress`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                
+                const progressBar = document.getElementById('progressBar');
+                const progressText = document.getElementById('progressText');
+                const button = document.getElementById('startTraining');
+                
+                progressBar.style.width = `${data.progress}%`;
+                progressText.textContent = `Epoch ${data.epoch + 1}/${data.total_epochs}, Batch ${data.batch + 1}/${data.total_batches} (${Math.round(data.progress)}%)`;
+                
+                if (data.is_training) {
+                    setTimeout(checkProgress, 500);
+                } else {
+                    button.disabled = false;
+                    if (data.progress >= 100) {
+                        progressText.textContent = 'Training completed!';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking progress:', error);
+                document.getElementById('progressText').textContent = 'Error checking progress';
+            }
+        }
+
+        // Load initial image when page loads
+        window.addEventListener('load', loadRandomImage);
+
+        // Add event listener to start training button
+        document.getElementById('startTraining').addEventListener('click', startTraining);
+    </script>
+</body>
+</html>

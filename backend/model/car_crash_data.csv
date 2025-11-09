@@ -1,0 +1,6 @@
+image,weather,time_of_day,road_type,speed,severity
+02808.jpg,clear,day,urban,30,minor
+02809.jpg,clear,day,urban,35,minor
+02810.jpg,clear,day,urban,40,moderate
+02811.jpg,clear,day,urban,45,moderate
+02812.jpg,clear,day,urban,50,severe
