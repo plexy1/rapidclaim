@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data
+data/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.csv
+*.json
+
+# Models
+models/*.pt
+models/*.pth
+models/*.pkl
+models/*.onnx
+weights/
+
+# Outputs
+outputs/
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+
+# YOLO
+runs/
+*.jpg
+*.png
+
+

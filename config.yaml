@@ -1,0 +1,71 @@
+# Configuration file for RapidClaim ML System
+
+# Paths
+data:
+  video_dir: "data/videos"
+  annotations_dir: "data/annotations"
+  models_dir: "models"
+  output_dir: "outputs"
+
+# Object Detection
+detection:
+  model_name: "yolov8n.pt" # yolov8n, yolov8s, yolov8m, yolov8l, yolov8x
+  confidence_threshold: 0.25  # Lower threshold for easier detection (was 0.5)
+  iou_threshold: 0.45
+  classes:
+    pedestrian: 0
+    vehicle: [2, 3, 5, 7] # car, motorcycle, bus, truck
+    traffic_light: 9
+
+# Traffic Light Classification
+traffic_light:
+  state_model_path: "models/traffic_light_classifier.pth"
+  temporal_smoothing_window: 5 # frames
+  state_confidence_threshold: 0.3  # Lower threshold for easier detection (was 0.7)
+  colors:
+    red: [0, 0, 200, 255, 100, 100]
+    yellow: [150, 150, 0, 255, 255, 100]
+    green: [0, 150, 0, 100, 255, 100]
+
+# Object Tracking
+tracking:
+  method: "bytetrack" # bytetrack or deepsort
+  max_age: 30 # frames
+  min_hits: 3
+  iou_threshold: 0.3
+
+# Feature Engineering
+features:
+  speed_calculation_window: 10 # frames
+  proximity_threshold: 50 # pixels
+  intersection_zone_threshold: 100 # pixels
+  red_light_violation_threshold: 5 # frames after red light
+
+# Fault Classification
+fault_classification:
+  model_path: "models/fault_classifier.pkl"
+  model_type: "xgboost" # xgboost, random_forest, neural_network
+  features:
+    - red_light_violation
+    - pedestrian_crossing_violation
+    - collision_proximity
+    - vehicle_speed
+    - time_to_collision
+    - intersection_zone
+    - traffic_light_state_duration
+
+# Video Processing
+video:
+  fps: 30
+  frame_skip: 1 # Process every Nth frame
+  resolution: [1920, 1080]
+
+# Training
+training:
+  batch_size: 16
+  epochs: 100
+  learning_rate: 0.001
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+
